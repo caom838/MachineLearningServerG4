@@ -1,0 +1,79 @@
+---
+title: "Notebook Tendencias"
+output: html_notebook
+---
+
+El presente documento es parte de el trabajo de uso de la herramienta Microsoft Machine Learning Server.
+
+```{r}
+##intalar paquetes faltantes de MLS
+#install.packages("dplyr")
+##install.packages('tidyverse')
+#install.packages("ggpubr")
+##Cargando librerias al espacio de trabajo
+library(ggplot2)
+library(tidyr)
+library(plyr)
+library(dplyr)
+
+calidadagua  <- read.csv("IRCA_2015.csv", sep=",");
+
+afiliadossgss  <- read.csv("N_mero_de_afiliados_por_departamento__municipio__r_gimen_y_administradora_para_el_a_o_2017.csv", sep=",");
+
+ips <-  read.csv("Relaci_n_de_IPS_p_blicas_y_privadas_seg_n_el_nivel_de_atenci_n_y_capacidad_instalada.csv", sep=",");
+camaspediatricas <-  read.csv("N_mero_de_camas_hospitalarias_pediatras_por_departamento..csv", sep=",");
+calidadips <- file.path("CALIDAD_EN_SALUD_IPS.csv", sep=",");
+mortalidadgeneral <-  read.csv("Gr_fico_Mortalidad_por_a_os__2011-2016_.csv", sep=",");
+calidadips <- read.csv("CALIDAD_EN_SALUD_IPS.csv", sep=",");
+
+
+```
+
+
+```{r}
+summary(calidadagua);
+summary(afiliadossgss);
+summary(ips);
+summary(calidadips);
+summary(camaspediatricas);
+summary(mortalidadgeneral);
+
+```
+```{r}
+mortalidadcol <- ggplot(subset(mortalidadgeneral, vigencia=2016), aes(x=Grupo, y=Porcentaje))+ 
+  geom_bar(stat="identity",fill=rgb(56,146,208, maxColorValue = 255), position = position_stack(reverse = TRUE)) + coord_flip()
+mortalidadcol <- mortalidadcol + theme(axis.text.x = element_text(size  = 6, angle = 0, hjust = 1, vjust = 2), axis.text.y = element_text(size  = 6, angle = 0, hjust = 1, vjust = 2))
+mortalidadcol
+
+```
+
+```{r}
+camascol <- ggplot(data=camaspediatricas, aes(x=nomdepto, y=año.2016))+ 
+  geom_bar(stat="identity",fill=rgb(56,146,208, maxColorValue = 255), position = position_stack(reverse = TRUE)) + coord_flip()
+camascol <- camascol + theme(axis.text.x = element_text(size  = 6, angle = 0, hjust = 1, vjust = 2), axis.text.y = element_text(size  = 6, angle = 0, hjust = 1, vjust = 2))
+camascol
+
+#names(camaspediatricas)
+```
+
+Cantidad de IPS vs Naturalez
+```{r}
+#unimos dos datafames de ips con su calidad para realizar análisis
+totalIps <- left_join(ips, calidadips, by = c("nit.IPS"="idips"));
+
+#frecuencia
+ggplot(data=totalIps)+geom_bar(mapping=aes(x=naturaleza),position = position_stack(reverse = TRUE))+ coord_flip() +theme(legend.position = "top")  + labs(x = "Atención", y="Frecuencias" ,title = "Frecuencia de naturaleza");
+
+```
+
+Correlacion
+
+```{r}
+#
+library(ggpubr)
+ggscatter(totalIps, x = "naturaleza", y = "num.cantidad.capacidad.instalada", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "naturaleza", ylab = "Capacidad",las=2)
+
+```
