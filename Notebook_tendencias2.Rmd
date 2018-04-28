@@ -1,9 +1,9 @@
 ---
-title: "Notebook Tendencias"
+title: "Notebook Tendencias MLS - Grupo 4"
 output: html_notebook
 ---
 
-El presente documento es parte de el trabajo de uso de la herramienta Microsoft Machine Learning Server.
+El presente documento es parte del trabajo de uso de la herramienta Microsoft Machine Learning Server y análisis de datos tomando varias fuentes de información.
 
 ```{r}
 ##intalar paquetes faltantes de MLS
@@ -29,6 +29,7 @@ calidadips <- read.csv("CALIDAD_EN_SALUD_IPS.csv", sep=",");
 
 ```
 
+Análisis de datos
 
 ```{r}
 summary(calidadagua);
@@ -39,6 +40,8 @@ summary(camaspediatricas);
 summary(mortalidadgeneral);
 
 ```
+
+Mortalidad vs Causa 
 ```{r}
 mortalidadcol <- ggplot(subset(mortalidadgeneral, vigencia=2016), aes(x=Grupo, y=Porcentaje))+ 
   geom_bar(stat="identity",fill=rgb(56,146,208, maxColorValue = 255), position = position_stack(reverse = TRUE)) + coord_flip()
@@ -46,17 +49,17 @@ mortalidadcol <- mortalidadcol + theme(axis.text.x = element_text(size  = 6, ang
 mortalidadcol
 
 ```
+Frecuencia de Camas hospitalarias para niños por departamento en el año 2016
 
 ```{r}
 camascol <- ggplot(data=camaspediatricas, aes(x=nomdepto, y=año.2016))+ 
   geom_bar(stat="identity",fill=rgb(56,146,208, maxColorValue = 255), position = position_stack(reverse = TRUE)) + coord_flip()
 camascol <- camascol + theme(axis.text.x = element_text(size  = 6, angle = 0, hjust = 1, vjust = 2), axis.text.y = element_text(size  = 6, angle = 0, hjust = 1, vjust = 2))
 camascol
-
-#names(camaspediatricas)
 ```
 
 Cantidad de IPS vs Naturalez
+
 ```{r}
 #unimos dos datafames de ips con su calidad para realizar análisis
 totalIps <- left_join(ips, calidadips, by = c("nit.IPS"="idips"));
@@ -66,11 +69,9 @@ ggplot(data=totalIps)+geom_bar(mapping=aes(x=naturaleza),position = position_sta
 
 ```
 
-Correlacion
+Correlación de 2 variables, Capacidad de IPS vs Naturaleza de la IPS
 
 ```{r}
-#
-library(ggpubr)
 ggscatter(totalIps, x = "naturaleza", y = "num.cantidad.capacidad.instalada", 
           add = "reg.line", conf.int = TRUE, 
           cor.coef = TRUE, cor.method = "pearson",
